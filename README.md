@@ -4,28 +4,24 @@
 
  * still to be thought 
 
-### Key Features ( still only Ideas ) 
+### Key Features
 
-  - Trash currency 
-  -  Selling objects
-  - Trash Loot
-  - Energy ( actions take energy ) 
-  - Defend from other homeless people 
-  - build your own carboard home 
-      - black smithing 
-      - Welding 
+  - Custom Dithering Colored Shader
+  - Grid System to pimp your box
+  - Help customors to gain money
+  - 7 days to pimp your box or you will be kicked!
+  - Steal items from the trash cans
+  - Energy system to talk to customers and carry items
+  - (Optionally) Sewer City
+  - Can Tab's as currency of the game
+  - (Optionally) Random amount of homeless people that invade you
+  - Eating Worms
+  - System to discard items and gain a little bit less money for it 
   - Balcan kanishk 
-  - Eating worms 
-  - Buzz Ball ( getting drunk ) 
+  - Buzz Ball ( getting drunk )
+  - Reputation   
   - quest
-  - Building home 
-  - Reputation 
-  - Cops 
-  - Yelp thing user reviews thing 
-  - Under the bridge homeless society 
-  - Sewer cities
-  - Homeless Gangs 
-  - Make the shader 
+  - (Optional) Yelp thing user reviews thing 
 
 ### Game Trailer 
 
