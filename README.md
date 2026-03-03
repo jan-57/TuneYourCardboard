@@ -1,6 +1,10 @@
 # Tune your cardboard  
 
-### Game Features ( Ideas ) 
+### Game Concept 
+
+ * still to be thought 
+
+### Key Features ( still only Ideas ) 
 
   - Trash currency 
   -  Selling objects
@@ -23,6 +27,10 @@
   - Homeless Gangs 
   - Make the shader 
 
+### Game Trailer 
+
+ * still to be done
+ 
 ## Guidelines 
 
 ### Commits 
