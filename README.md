@@ -20,12 +20,22 @@
   - Balcan kanishk 
   - Buzz Ball ( getting drunk )
   - Reputation   
-  - quest
-  - (Optional) Yelp thing user reviews thing 
+  - Quests
+  - (Optional) Yelp thing user reviews thing
+  - Custom Sounds 
 
 ### Game Trailer 
 
  * still to be done
+
+### Custom Models 
+
+- [ ] blah blah blah blah
+- [ ] blah blah blah blah
+- [ ] blah blah blah blah
+- [ ] blah blah blah blah
+- [ ] blah blah blah blah
+- [ ] blah blah blah blah
  
 ## Guidelines 
 
