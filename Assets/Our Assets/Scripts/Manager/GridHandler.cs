@@ -1,52 +1,168 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
 public class GridHandler : MonoBehaviour
 {
+    #region Variables
     [SerializeField] private float cubeSize = 1f;
     [SerializeField] private Transform first_AnchorPos, second_AnchorPos;
+    [SerializeField] private Vector3 _startCellID, _endCellID;
 
-    [SerializeField] private List<BuildList_Objects> Objects = new List<BuildList_Objects>();
+    [SerializeField] private List<BuildList_Objects> objects_List = new List<BuildList_Objects>();
+    [SerializeField] private List<BuildList_Walls> walls_List = new List<BuildList_Walls>();
 
     private int xCount, yCount, zCount;
-    private Vector3 min, max;
- 
+    private Vector3 minGrid, maxGrid;
+    private float wallThickness = 0.01f;
+#endregion
+
     private void Awake()
     {
         UpdateGridData();
-        SpawnPreset();    
+        SpawnPreset();
     }
 
+    #region Spawn/ Add/ Create
+    #region Add 
+    //Add new object/wall
+    public void AddObject(GameObject _objREPLACEWITHID, Vector3 _cellID, Quaternion _rotation, int _objID = 0) //remove = 0
+    {
+        BuildList_Objects bl = new BuildList_Objects();
+        bl.cellID = _cellID;
+        Debug.Log(bl.cellID + "  " + _cellID);
+        bl.objectRotation = _rotation;
+        bl.TMP_objectID_Replacemend = _objREPLACEWITHID;        
+        bl.objectID = _objID;
+        objects_List.Add(bl);        
+        CreateObject(bl);
+    }
+    public void AddBoxOfWalls(GameObject _wallREPLACEWITHID, Vector3 _cellId_Start, Vector3 _cellId_End)
+    {
+        CreateBoxOfWalls(_cellId_Start, _cellId_End, _wallREPLACEWITHID);
+    }
+
+    /// <summary>
+    /// Use AddBoxOfWalls() if plausible, its simpler
+    /// </summary>
+    /// <param name="_wallREPLACEWITHID">Wall type</param>
+    /// <param name="_cellId_Start">pos not cellID, Center of finished wall</param>
+    /// <param name="_cellId_End"></param>
+    public void AddSingleWall(GameObject _wallREPLACEWITHID, Vector3 _pos, Vector3 _scale)
+    {
+        CreateWall(_pos, _scale, _wallREPLACEWITHID);
+    }
+    #endregion
+
+    #region Spawn
+    //Initiate Prefab
     private void SpawnPreset()
     {
-        foreach (BuildList_Objects obj in Objects)
+        foreach (BuildList_Walls _wall in walls_List)
         {
-            GameObject tmp = Instantiate(obj.TMP_objectID_Replacemend, first_AnchorPos);
-            tmp.transform.rotation = obj.objectRotation;
-            tmp.transform.position = GetCellPos(obj.cellId);
+            CreateBoxOfWalls(_wall.cellID_Start, _wall.cellID_End, _wall.TMP_objectID_Replacemend);                  
+        }
+
+        foreach (BuildList_Objects _obj in objects_List)
+        {
+            CreateObject(_obj);         
         }
     }
+    #endregion
 
-    private Vector3 GetCellPos(Vector3 cellId)
+    #region Create
+    //Instantiate object/walls
+    private void CreateObject(BuildList_Objects _objInfo)
     {
+        GameObject tmp = Instantiate(_objInfo.TMP_objectID_Replacemend,first_AnchorPos);
+        tmp.transform.localPosition = _objInfo.cellID;
+        tmp.transform.localRotation = _objInfo.objectRotation;        
+    }
+    private void CreateBoxOfWalls(Vector3 _cellA, Vector3 _cellB, GameObject _wallPrefab)
+    {
+        Vector3 _min = Vector3.Min(_cellA, _cellB);
+        Vector3 _max = Vector3.Max(_cellA, _cellB);
 
-        Vector3 center = new Vector3(min.x + cellId.x * cubeSize + cubeSize * 0.5f,
-                                      min.y + cellId.y * cubeSize + cubeSize * 0.5f,
-                                      min.z + cellId.z * cubeSize + cubeSize * 0.5f);
+        Debug.Log($"Min: {_min.x} {_min.y} {_min.z}, Max: {_max.x} {_max.y} {_max.z}");
 
+        Bounds _bounds = new Bounds();
+
+        _bounds.SetMinMax(_min * cubeSize, _max * cubeSize + Vector3.one*cubeSize);
+        Debug.Log(_bounds.center.x+" "+ _bounds.center.y+ " "+ _bounds.center.z);
+
+        // Floor
+        CreateWall(new Vector3(_bounds.center.x, _bounds.min.y, _bounds.center.z), 
+                   new Vector3(_bounds.size.x, wallThickness, _bounds.size.z), _wallPrefab); 
+        // Roof
+        CreateWall(new Vector3(_bounds.center.x, _bounds.max.y, _bounds.center.z), 
+                   new Vector3(_bounds.size.x + wallThickness, wallThickness, _bounds.size.z + wallThickness), _wallPrefab); 
+        // Left
+        CreateWall(new Vector3(_bounds.min.x, _bounds.center.y, _bounds.center.z), 
+                   new Vector3(wallThickness, _bounds.size.y + wallThickness, _bounds.size.z + wallThickness), _wallPrefab); 
+        // Right
+        CreateWall(new Vector3(_bounds.max.x, _bounds.center.y, _bounds.center.z), 
+                   new Vector3(wallThickness, _bounds.size.y + wallThickness, _bounds.size.z + wallThickness), _wallPrefab); 
+        // Front
+        CreateWall(new Vector3(_bounds.center.x, _bounds.center.y, _bounds.min.z), 
+                   new Vector3(_bounds.size.x + wallThickness, _bounds.size.y + wallThickness, wallThickness), _wallPrefab); 
+        // Back
+        CreateWall(new Vector3(_bounds.center.x, _bounds.center.y, _bounds.max.z), 
+                   new Vector3(_bounds.size.x + wallThickness, _bounds.size.y + wallThickness, wallThickness), _wallPrefab);         
+    }
+    private void CreateWall(Vector3 _pos, Vector3 _scale, GameObject _wallPrefab)
+    {
+        var wall = Instantiate(_wallPrefab, first_AnchorPos);
+        wall.transform.localPosition = _pos;
+        wall.transform.localScale = _scale;
+    }
+    #endregion
+    #endregion
+
+    #region Helper Methods
+    public Vector3 GetCellWorldPos_FromID(Vector3 _cellID)
+    {
+        Vector3 center = new Vector3(minGrid.x + _cellID.x * cubeSize + cubeSize * 0.5f,
+                                      minGrid.y + _cellID.y * cubeSize + cubeSize * 0.5f,
+                                      minGrid.z + _cellID.z * cubeSize + cubeSize * 0.5f);
+        Debug.Log(center);
         return center;              
+    }
+    public Vector3 GetCellWorldPos_FromWorldPos(Vector3 _posToCheck)
+    {
+        if (_posToCheck.x < minGrid.x || _posToCheck.y < minGrid.y || _posToCheck.z < minGrid.z ||
+            _posToCheck.x > maxGrid.x || _posToCheck.y > maxGrid.y || _posToCheck.z > maxGrid.z)
+                return _posToCheck;
+
+        return new Vector3(Mathf.Floor((_posToCheck.x - minGrid.x) / cubeSize) * cubeSize + minGrid.x + cubeSize * 0.5f,
+                           Mathf.Floor((_posToCheck.y - minGrid.y) / cubeSize) * cubeSize + minGrid.y + cubeSize * 0.5f,
+                           Mathf.Floor((_posToCheck.z - minGrid.z) / cubeSize) * cubeSize + minGrid.z + cubeSize * 0.5f);        
+    }
+    public Vector3 GetCellID_FromWorldPos(Vector3 _posToCheck)
+    {
+        if (_posToCheck.x < minGrid.x || _posToCheck.y < minGrid.y || _posToCheck.z < minGrid.z ||
+            _posToCheck.x > maxGrid.x || _posToCheck.y > maxGrid.y || _posToCheck.z > maxGrid.z)
+            return _posToCheck;
+
+        return new Vector3(Mathf.Floor((_posToCheck.x - minGrid.x) / cubeSize),
+                           Mathf.Floor((_posToCheck.y - minGrid.y) / cubeSize),
+                           Mathf.Floor((_posToCheck.z - minGrid.z) / cubeSize));
     }
 
     private void UpdateGridData()
     {
-        min = Vector3.Min(first_AnchorPos.position, second_AnchorPos.position);
-        max = Vector3.Max(first_AnchorPos.position, second_AnchorPos.position);
+        minGrid = Vector3.Min(first_AnchorPos.position, second_AnchorPos.position);
+        maxGrid = Vector3.Max(first_AnchorPos.position, second_AnchorPos.position);
 
-        xCount = Mathf.FloorToInt((max.x - min.x) / cubeSize);
-        yCount = Mathf.FloorToInt((max.y - min.y) / cubeSize);
-        zCount = Mathf.FloorToInt((max.z - min.z) / cubeSize);
+        xCount = Mathf.FloorToInt((maxGrid.x - minGrid.x) / cubeSize);
+        yCount = Mathf.FloorToInt((maxGrid.y - minGrid.y) / cubeSize);
+        zCount = Mathf.FloorToInt((maxGrid.z - minGrid.z) / cubeSize);
     }
+    public Transform GetFirst_Anchor()
+    {
+        return first_AnchorPos;
+    }
+    #endregion
 
     #region Gizmo
     [Header("Visualization")]
@@ -101,9 +217,9 @@ public class GridHandler : MonoBehaviour
             {
                 for (int z = 0; z < zCount; z++)
                 {
-                    Vector3 center = new Vector3( min.x + x * cubeSize + cubeSize * 0.5f,
-                                                  min.y + y * cubeSize + cubeSize * 0.5f,
-                                                  min.z + z * cubeSize + cubeSize * 0.5f);
+                    Vector3 center = new Vector3(minGrid.x + x * cubeSize + cubeSize * 0.5f,
+                                                  minGrid.y + y * cubeSize + cubeSize * 0.5f,
+                                                  minGrid.z + z * cubeSize + cubeSize * 0.5f);
 
                     Gizmos.DrawSphere(center, cubeSize * 0.1f);
                 }
@@ -111,14 +227,23 @@ public class GridHandler : MonoBehaviour
         }
     }
     #endregion
-
 }
 
+#region struct
 [Serializable]
 public struct BuildList_Objects
 {
-    public Vector3 cellId;
+    public Vector3 cellID;
     public Quaternion objectRotation;
     public int objectID;
     public GameObject TMP_objectID_Replacemend;
 }
+[Serializable]
+public struct BuildList_Walls
+{
+    public Vector3 cellID_Start, cellID_End;
+    public Quaternion objectRotation;
+    public int objectID;
+    public GameObject TMP_objectID_Replacemend;
+}
+#endregion

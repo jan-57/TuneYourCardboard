@@ -1,35 +1,103 @@
+using System;
+using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class BuildManager : MonoBehaviour
 {
     [SerializeField] private LayerMask placeableLayer;
-    public bool BuildModeActivated;
+    [SerializeField] private GridHandler gridToTest;
+    [SerializeField] private GameObject ObjectToTest;
+    [field:SerializeField] public bool BuildModeActivated { get; private set;}
+
+    [SerializeField] private Material holoMat;
 
     private RaycastHit hit;
     private GridHandler grid;
+    private GameObject holoObject;
+    private Vector3 placeToHideHolo = new Vector3(0, -20, 0);
+    private Vector3 cellPosWorldSpace = new Vector3(0, -20, 0);
+    private quaternion targetRotation;
+
+    private InputSystem_Player inputSystem;
+
+    private void Awake()
+    {
+        grid = gridToTest;
+        cellPosWorldSpace = placeToHideHolo;
+
+        inputSystem = new InputSystem_Player();
+
+
+        ChangeHoloObject(ObjectToTest);        
+    }
+    private void OnEnable()
+    {
+        inputSystem.Enable();
+        inputSystem.Player.Interact.performed += OnPlayerInteractPerformed;
+    }
+    private void OnDisable()
+    {
+        inputSystem.Player.Interact.performed -= OnPlayerInteractPerformed;
+        inputSystem.Disable();
+    }
+
     private void Update()
     {
+        if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;
+
         if (BuildModeActivated)
         {
             UpdateHitFromScreenRay();
-            if(hit.collider != null)
-                UpdateGridVisualizer();
+            if (hit.collider != null)
+            {
+                UpdateCellPosWorldSpace();
+                ShowHolo();
+            }
+        }
+    }
+    
+    private void OnPlayerInteractPerformed(InputAction.CallbackContext _context)
+    {
+        if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;
+        Debug.LogWarning("AGH");
+        grid.AddObject(ObjectToTest, grid.GetCellID_FromWorldPos(hit.point), holoObject.transform.rotation);
+    }
+
+    private void ShowHolo()
+    {
+        if(cellPosWorldSpace != hit.point)
+        {        
+            holoObject.transform.position = cellPosWorldSpace;            
         }
     }
 
-    private void UpdateHitFromScreenRay()
+    private void ChangeHoloObject(GameObject _newHoloObject)
     {
-        Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100, placeableLayer);
-      
+        Destroy(holoObject);
+        holoObject = Instantiate(_newHoloObject);
+        holoObject.transform.position = placeToHideHolo;
+        
+        Material[] a = holoObject.GetComponent<Renderer>().materials;
+        for (int i = 0; i < a.Length; i++)
+        {
+            a[i] = holoMat;
+        }
+        holoObject.GetComponent<Renderer>().materials = a;
     }
 
-    private void UpdateGridVisualizer()
+    #region Helper
+    private void UpdateHitFromScreenRay()
     {
-     //   currentGrid = hit.collider.GetComponent<Grid>();
-     //   currentGrid.LocalToCell(hit.point);
-        
+        Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100, placeableLayer);      
+    }   
+
+    private void UpdateCellPosWorldSpace()
+    {
+        cellPosWorldSpace = grid.GetCellWorldPos_FromWorldPos(hit.point);
     }
+    #endregion
 
     #region Gizmo
     [Header("Visualization")]
@@ -59,8 +127,7 @@ public class BuildManager : MonoBehaviour
             Gizmos.DrawRay(Camera.main.transform.position, hit.point- Camera.main.transform.position);
             Gizmos.DrawSphere(hit.point, hitGizmoSize);
 
-           // Gizmos.DrawCube(currentGrid.LocalToCell(hit.point)+currentGrid.cellSize/2, currentGrid.cellSize);
-            
+            Gizmos.DrawCube(cellPosWorldSpace,Vector3.one* 0.2f);
 
         }
 
