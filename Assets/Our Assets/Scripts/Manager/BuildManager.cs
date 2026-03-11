@@ -26,9 +26,7 @@ public class BuildManager : MonoBehaviour
     {
         grid = gridToTest;
         cellPosWorldSpace = placeToHideHolo;
-
         inputSystem = new InputSystem_Player();
-
 
         ChangeHoloObject(ObjectToTest);        
     }
@@ -58,11 +56,15 @@ public class BuildManager : MonoBehaviour
         }
     }
     
+    private void OnPlayerRotatePerformed()
+    {
+        if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;       
+        // ToDo: code to rotate holoObject
+    }
     private void OnPlayerInteractPerformed(InputAction.CallbackContext _context)
     {
         if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;
-        Debug.LogWarning("AGH");
-        grid.AddObject(ObjectToTest, grid.GetCellID_FromWorldPos(hit.point), holoObject.transform.rotation);
+        grid.AddObject(ObjectToTest, grid.GetCellID_FromCellWorldPos(cellPosWorldSpace), holoObject.transform.rotation);
     }
 
     private void ShowHolo()
@@ -79,18 +81,18 @@ public class BuildManager : MonoBehaviour
         holoObject = Instantiate(_newHoloObject);
         holoObject.transform.position = placeToHideHolo;
         
-        Material[] a = holoObject.GetComponent<Renderer>().materials;
-        for (int i = 0; i < a.Length; i++)
+        Material[] _a = holoObject.GetComponent<Renderer>().materials;
+        for (int i = 0; i < _a.Length; i++)
         {
-            a[i] = holoMat;
+            _a[i] = holoMat;
         }
-        holoObject.GetComponent<Renderer>().materials = a;
+        holoObject.GetComponent<Renderer>().materials = _a;
     }
 
     #region Helper
     private void UpdateHitFromScreenRay()
     {
-        Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 100, placeableLayer);      
+        Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 50, placeableLayer);      
     }   
 
     private void UpdateCellPosWorldSpace()

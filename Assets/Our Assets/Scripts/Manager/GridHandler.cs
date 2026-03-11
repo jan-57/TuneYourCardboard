@@ -75,9 +75,10 @@ public class GridHandler : MonoBehaviour
     //Instantiate object/walls
     private void CreateObject(BuildList_Objects _objInfo)
     {
-        GameObject tmp = Instantiate(_objInfo.TMP_objectID_Replacemend,first_AnchorPos);
+        GameObject tmp = Instantiate(_objInfo.TMP_objectID_Replacemend);
         tmp.transform.localPosition = _objInfo.cellID;
-        tmp.transform.localRotation = _objInfo.objectRotation;        
+        tmp.transform.localRotation = _objInfo.objectRotation;
+        tmp.transform.SetParent(first_AnchorPos, false);
     }
     private void CreateBoxOfWalls(Vector3 _cellA, Vector3 _cellB, GameObject _wallPrefab)
     {
@@ -138,15 +139,9 @@ public class GridHandler : MonoBehaviour
                            Mathf.Floor((_posToCheck.y - minGrid.y) / cubeSize) * cubeSize + minGrid.y + cubeSize * 0.5f,
                            Mathf.Floor((_posToCheck.z - minGrid.z) / cubeSize) * cubeSize + minGrid.z + cubeSize * 0.5f);        
     }
-    public Vector3 GetCellID_FromWorldPos(Vector3 _posToCheck)
+    public Vector3 GetCellID_FromCellWorldPos(Vector3 _cellWorldPosToCheck)
     {
-        if (_posToCheck.x < minGrid.x || _posToCheck.y < minGrid.y || _posToCheck.z < minGrid.z ||
-            _posToCheck.x > maxGrid.x || _posToCheck.y > maxGrid.y || _posToCheck.z > maxGrid.z)
-            return _posToCheck;
-
-        return new Vector3(Mathf.Floor((_posToCheck.x - minGrid.x) / cubeSize),
-                           Mathf.Floor((_posToCheck.y - minGrid.y) / cubeSize),
-                           Mathf.Floor((_posToCheck.z - minGrid.z) / cubeSize));
+        return first_AnchorPos.InverseTransformPoint(_cellWorldPosToCheck);
     }
 
     private void UpdateGridData()
