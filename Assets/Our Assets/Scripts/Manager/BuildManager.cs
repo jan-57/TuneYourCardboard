@@ -3,6 +3,7 @@ using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngineInternal;
 
 public class BuildManager : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class BuildManager : MonoBehaviour
     private GameObject holoObject;
     private Vector3 placeToHideHolo = new Vector3(0, -20, 0);
     private Vector3 cellPosWorldSpace = new Vector3(0, -20, 0);
-    private quaternion targetRotation;
+    private float targetRotation = 0;
 
     private InputSystem_Player inputSystem;
 
@@ -34,10 +35,12 @@ public class BuildManager : MonoBehaviour
     {
         inputSystem.Enable();
         inputSystem.Player.Interact.performed += OnPlayerInteractPerformed;
+        inputSystem.Player.Rotate.performed += OnPlayerRotatePerformed;
     }
     private void OnDisable()
     {
         inputSystem.Player.Interact.performed -= OnPlayerInteractPerformed;
+        inputSystem.Player.Rotate.performed -= OnPlayerRotatePerformed;
         inputSystem.Disable();
     }
 
@@ -56,22 +59,25 @@ public class BuildManager : MonoBehaviour
         }
     }
     
-    private void OnPlayerRotatePerformed()
+    private void OnPlayerRotatePerformed(InputAction.CallbackContext _context)
     {
-        if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;       
-        // ToDo: code to rotate holoObject
+        if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;
+        targetRotation += 90;
     }
     private void OnPlayerInteractPerformed(InputAction.CallbackContext _context)
     {
         if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;
-        grid.AddObject(ObjectToTest, grid.GetCellID_FromCellWorldPos(cellPosWorldSpace), holoObject.transform.rotation);
+        grid.AddObject(ObjectToTest, grid.GetCellID_FromCellWorldPos(cellPosWorldSpace), holoObject.transform.rotation, -hit.normal);
     }
 
     private void ShowHolo()
     {
         if(cellPosWorldSpace != hit.point)
         {        
-            holoObject.transform.position = cellPosWorldSpace;            
+            holoObject.transform.position = cellPosWorldSpace + (grid.CellSize/2) *  - hit.normal;     
+
+            holoObject.transform.rotation = Quaternion.AngleAxis(targetRotation, hit.normal) * Quaternion.FromToRotation(Vector3.up, hit.normal); // final rotation = rotate like a bottle * stick from surface
+
         }
     }
 
@@ -87,6 +93,11 @@ public class BuildManager : MonoBehaviour
             _a[i] = holoMat;
         }
         holoObject.GetComponent<Renderer>().materials = _a;
+
+        foreach (Collider _collider in holoObject.GetComponents<Collider>())
+        {
+            _collider.enabled = false;
+        }
     }
 
     #region Helper

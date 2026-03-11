@@ -6,7 +6,7 @@ using UnityEngine;
 public class GridHandler : MonoBehaviour
 {
     #region Variables
-    [SerializeField] private float cubeSize = 1f;
+    [field:SerializeField] public float CellSize { get; private set; } = 0.5f;
     [SerializeField] private Transform first_AnchorPos, second_AnchorPos;
     [SerializeField] private Vector3 _startCellID, _endCellID;
 
@@ -27,10 +27,11 @@ public class GridHandler : MonoBehaviour
     #region Spawn/ Add/ Create
     #region Add 
     //Add new object/wall
-    public void AddObject(GameObject _objREPLACEWITHID, Vector3 _cellID, Quaternion _rotation, int _objID = 0) //remove = 0
+    public void AddObject(GameObject _objREPLACEWITHID, Vector3 _cellID, Quaternion _rotation, Vector3 _directionToOffsetToo, int _objID = 0) //remove = 0
     {
         BuildList_Objects bl = new BuildList_Objects();
         bl.cellID = _cellID;
+        bl.directionalOffset = _directionToOffsetToo;
         Debug.Log(bl.cellID + "  " + _cellID);
         bl.objectRotation = _rotation;
         bl.TMP_objectID_Replacemend = _objREPLACEWITHID;        
@@ -75,10 +76,9 @@ public class GridHandler : MonoBehaviour
     //Instantiate object/walls
     private void CreateObject(BuildList_Objects _objInfo)
     {
-        GameObject tmp = Instantiate(_objInfo.TMP_objectID_Replacemend);
-        tmp.transform.localPosition = _objInfo.cellID;
+        GameObject tmp = Instantiate(_objInfo.TMP_objectID_Replacemend, first_AnchorPos);
+        tmp.transform.localPosition = _objInfo.cellID + _objInfo.directionalOffset * (CellSize/2);
         tmp.transform.localRotation = _objInfo.objectRotation;
-        tmp.transform.SetParent(first_AnchorPos, false);
     }
     private void CreateBoxOfWalls(Vector3 _cellA, Vector3 _cellB, GameObject _wallPrefab)
     {
@@ -89,7 +89,7 @@ public class GridHandler : MonoBehaviour
 
         Bounds _bounds = new Bounds();
 
-        _bounds.SetMinMax(_min * cubeSize, _max * cubeSize + Vector3.one*cubeSize);
+        _bounds.SetMinMax(_min * CellSize, _max * CellSize + Vector3.one*CellSize);
         Debug.Log(_bounds.center.x+" "+ _bounds.center.y+ " "+ _bounds.center.z);
 
         // Floor
@@ -123,9 +123,9 @@ public class GridHandler : MonoBehaviour
     #region Helper Methods
     public Vector3 GetCellWorldPos_FromID(Vector3 _cellID)
     {
-        Vector3 center = new Vector3(minGrid.x + _cellID.x * cubeSize + cubeSize * 0.5f,
-                                      minGrid.y + _cellID.y * cubeSize + cubeSize * 0.5f,
-                                      minGrid.z + _cellID.z * cubeSize + cubeSize * 0.5f);
+        Vector3 center = new Vector3(minGrid.x + _cellID.x * CellSize + CellSize * 0.5f,
+                                      minGrid.y + _cellID.y * CellSize + CellSize * 0.5f,
+                                      minGrid.z + _cellID.z * CellSize + CellSize * 0.5f);
         Debug.Log(center);
         return center;              
     }
@@ -135,9 +135,9 @@ public class GridHandler : MonoBehaviour
             _posToCheck.x > maxGrid.x || _posToCheck.y > maxGrid.y || _posToCheck.z > maxGrid.z)
                 return _posToCheck;
 
-        return new Vector3(Mathf.Floor((_posToCheck.x - minGrid.x) / cubeSize) * cubeSize + minGrid.x + cubeSize * 0.5f,
-                           Mathf.Floor((_posToCheck.y - minGrid.y) / cubeSize) * cubeSize + minGrid.y + cubeSize * 0.5f,
-                           Mathf.Floor((_posToCheck.z - minGrid.z) / cubeSize) * cubeSize + minGrid.z + cubeSize * 0.5f);        
+        return new Vector3(Mathf.Floor((_posToCheck.x - minGrid.x) / CellSize) * CellSize + minGrid.x + CellSize * 0.5f,
+                           Mathf.Floor((_posToCheck.y - minGrid.y) / CellSize) * CellSize + minGrid.y + CellSize * 0.5f,
+                           Mathf.Floor((_posToCheck.z - minGrid.z) / CellSize) * CellSize + minGrid.z + CellSize * 0.5f);        
     }
     public Vector3 GetCellID_FromCellWorldPos(Vector3 _cellWorldPosToCheck)
     {
@@ -149,9 +149,9 @@ public class GridHandler : MonoBehaviour
         minGrid = Vector3.Min(first_AnchorPos.position, second_AnchorPos.position);
         maxGrid = Vector3.Max(first_AnchorPos.position, second_AnchorPos.position);
 
-        xCount = Mathf.FloorToInt((maxGrid.x - minGrid.x) / cubeSize);
-        yCount = Mathf.FloorToInt((maxGrid.y - minGrid.y) / cubeSize);
-        zCount = Mathf.FloorToInt((maxGrid.z - minGrid.z) / cubeSize);
+        xCount = Mathf.FloorToInt((maxGrid.x - minGrid.x) / CellSize);
+        yCount = Mathf.FloorToInt((maxGrid.y - minGrid.y) / CellSize);
+        zCount = Mathf.FloorToInt((maxGrid.z - minGrid.z) / CellSize);
     }
     public Transform GetFirst_Anchor()
     {
@@ -200,7 +200,7 @@ public class GridHandler : MonoBehaviour
   
     private void DrawDotsGizmo()
     {
-        if (first_AnchorPos == null || second_AnchorPos == null || cubeSize <= 0f)
+        if (first_AnchorPos == null || second_AnchorPos == null || CellSize <= 0f)
             return;
         UpdateGridData();
 
@@ -212,11 +212,11 @@ public class GridHandler : MonoBehaviour
             {
                 for (int z = 0; z < zCount; z++)
                 {
-                    Vector3 center = new Vector3(minGrid.x + x * cubeSize + cubeSize * 0.5f,
-                                                  minGrid.y + y * cubeSize + cubeSize * 0.5f,
-                                                  minGrid.z + z * cubeSize + cubeSize * 0.5f);
+                    Vector3 center = new Vector3(minGrid.x + x * CellSize + CellSize * 0.5f,
+                                                  minGrid.y + y * CellSize + CellSize * 0.5f,
+                                                  minGrid.z + z * CellSize + CellSize * 0.5f);
 
-                    Gizmos.DrawSphere(center, cubeSize * 0.1f);
+                    Gizmos.DrawSphere(center, CellSize * 0.1f);
                 }
             }
         }
@@ -224,11 +224,12 @@ public class GridHandler : MonoBehaviour
     #endregion
 }
 
-#region struct
+#region structs
 [Serializable]
 public struct BuildList_Objects
 {
     public Vector3 cellID;
+    public Vector3 directionalOffset;
     public Quaternion objectRotation;
     public int objectID;
     public GameObject TMP_objectID_Replacemend;
@@ -237,6 +238,7 @@ public struct BuildList_Objects
 public struct BuildList_Walls
 {
     public Vector3 cellID_Start, cellID_End;
+    public Vector3 directionalOffset;
     public Quaternion objectRotation;
     public int objectID;
     public GameObject TMP_objectID_Replacemend;
