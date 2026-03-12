@@ -9,7 +9,7 @@
   - [X] Custom Dithering Colored Shader
   - [ ]Grid System to pimp your box
   - [ ]Help customors to gain money
-  - [ ] 7 days to pimp your box or you will be kicked!
+  - [ ]7 days to pimp your box or you will be kicked!
   - [ ]Steal items from the trash cans
   - [ ]Energy system to talk to customers and carry items
   - [ ](Optionally) Sewer City
