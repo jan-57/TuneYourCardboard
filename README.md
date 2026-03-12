@@ -6,23 +6,23 @@
 
 ### Key Features
 
-  - Custom Dithering Colored Shader
-  - Grid System to pimp your box
-  - Help customors to gain money
-  - 7 days to pimp your box or you will be kicked!
-  - Steal items from the trash cans
-  - Energy system to talk to customers and carry items
-  - (Optionally) Sewer City
-  - Can Tab's as currency of the game
-  - (Optionally) Random amount of homeless people that invade you
-  - Eating Worms
-  - System to discard items and gain a little bit less money for it 
-  - Balcan kanishk 
-  - Buzz Ball ( getting drunk )
-  - Reputation   
-  - Quests
-  - (Optional) Yelp thing user reviews thing
-  - Custom Sounds 
+  - [X] Custom Dithering Colored Shader
+  - [ ]Grid System to pimp your box
+  - [ ]Help customors to gain money
+  - [ ] 7 days to pimp your box or you will be kicked!
+  - [ ]Steal items from the trash cans
+  - [ ]Energy system to talk to customers and carry items
+  - [ ](Optionally) Sewer City
+  - [ ]Can Tab's as currency of the game
+  - [ ](Optionally) Random amount of homeless people that invade you
+  - [ ]Eating Worms
+  - [ ]System to discard items and gain a little bit less money for it 
+  - [ ]Balcan kanishk 
+  - [ ]Buzz Ball ( getting drunk )
+  - [ ]Reputation   
+  - [ ]Quests
+  - [ ](Optional) Yelp thing user reviews thing
+  - [ ]Custom Sounds 
 
 ### Game Trailer 
 
