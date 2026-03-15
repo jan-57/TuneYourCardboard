@@ -32,9 +32,14 @@ public class GridHandler : MonoBehaviour
         BuildList_Objects bl = new BuildList_Objects();
         bl.cellID = _cellID;
         bl.directionalOffset = _directionToOffsetToo;
+        bl.TMP_objectID_Replacemend = _objREPLACEWITHID;        
+        Debug.Log("bl" + bl);
+        Debug.Log("repl" + bl.TMP_objectID_Replacemend);
+        Debug.Log("Get" + bl.TMP_objectID_Replacemend.GetComponent<PlaceableObjectData>());
+        Debug.Log("Cells" + bl.TMP_objectID_Replacemend.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy);
+        bl.additionelCellsToOccupy = bl.TMP_objectID_Replacemend.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy;
         Debug.Log(bl.cellID + "  " + _cellID);
         bl.objectRotation = _rotation;
-        bl.TMP_objectID_Replacemend = _objREPLACEWITHID;        
         bl.objectID = _objID;
         objects_List.Add(bl);        
         CreateObject(bl);
@@ -230,6 +235,7 @@ public struct BuildList_Objects
 {
     public Vector3 cellID;
     public Vector3 directionalOffset;
+    public Vector3 additionelCellsToOccupy;
     public Quaternion objectRotation;
     public int objectID;
     public GameObject TMP_objectID_Replacemend;

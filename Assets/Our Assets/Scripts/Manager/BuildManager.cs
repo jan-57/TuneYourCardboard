@@ -1,18 +1,15 @@
-using System;
-using System.Linq;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngineInternal;
 
 public class BuildManager : MonoBehaviour
 {
+    #region Variables
     [SerializeField] private LayerMask placeableLayer;
     [SerializeField] private GridHandler gridToTest;
     [SerializeField] private GameObject ObjectToTest;
     [field:SerializeField] public bool BuildModeActivated { get; private set;}
 
-    [SerializeField] private Material holoMat;
+    [SerializeField] private Material holoMat_Valid, holoMat_Error;
 
     private RaycastHit hit;
     private GridHandler grid;
@@ -22,6 +19,7 @@ public class BuildManager : MonoBehaviour
     private float targetRotation = 0;
 
     private InputSystem_Player inputSystem;
+    #endregion
 
     private void Awake()
     {
@@ -56,9 +54,16 @@ public class BuildManager : MonoBehaviour
                 UpdateCellPosWorldSpace();
                 ShowHolo();
             }
+            else
+            {
+                holoObject.transform.position = placeToHideHolo;
+            }
         }
     }
-    
+
+
+
+    #region On...Performed    
     private void OnPlayerRotatePerformed(InputAction.CallbackContext _context)
     {
         if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;
@@ -66,19 +71,27 @@ public class BuildManager : MonoBehaviour
     }
     private void OnPlayerInteractPerformed(InputAction.CallbackContext _context)
     {
-        if (PauseManager.InputIsPaused || PauseManager.GameIsPaused) return;
+        if (PauseManager.InputIsPaused || PauseManager.GameIsPaused || !CanObjectBePlacedHere()) return;
         grid.AddObject(ObjectToTest, grid.GetCellID_FromCellWorldPos(cellPosWorldSpace), holoObject.transform.rotation, -hit.normal);
     }
+#endregion
 
+    private bool CanObjectBePlacedHere()
+    {
+        if (cellPosWorldSpace == hit.point) return false; 
+        if (hit.collider == null) return false;
+
+        return true;
+    }
+
+    #region Holo
     private void ShowHolo()
     {
-        if(cellPosWorldSpace != hit.point)
-        {        
-            holoObject.transform.position = cellPosWorldSpace + (grid.CellSize/2) *  - hit.normal;     
+        if (CanObjectBePlacedHere()) SwitchHoloObjectMaterial(true); //Not Optimal        
+        else SwitchHoloObjectMaterial(false);
 
-            holoObject.transform.rotation = Quaternion.AngleAxis(targetRotation, hit.normal) * Quaternion.FromToRotation(Vector3.up, hit.normal); // final rotation = rotate like a bottle * stick from surface
-
-        }
+        holoObject.transform.position = cellPosWorldSpace + (grid.CellSize / 2) * -hit.normal;
+        holoObject.transform.rotation = Quaternion.AngleAxis(targetRotation, hit.normal) * Quaternion.FromToRotation(Vector3.up, hit.normal); // final rotation = rotate like a bottle * stick from surface                
     }
 
     private void ChangeHoloObject(GameObject _newHoloObject)
@@ -86,21 +99,26 @@ public class BuildManager : MonoBehaviour
         Destroy(holoObject);
         holoObject = Instantiate(_newHoloObject);
         holoObject.transform.position = placeToHideHolo;
-        
-        Material[] _a = holoObject.GetComponent<Renderer>().materials;
-        for (int i = 0; i < _a.Length; i++)
-        {
-            _a[i] = holoMat;
-        }
-        holoObject.GetComponent<Renderer>().materials = _a;
+
+        SwitchHoloObjectMaterial(true);
 
         foreach (Collider _collider in holoObject.GetComponents<Collider>())
         {
             _collider.enabled = false;
         }
     }
+    private void SwitchHoloObjectMaterial(bool _validPlacingPos)
+    {
+        Material[] _a = holoObject.GetComponent<Renderer>().materials;
+        for (int i = 0; i < _a.Length; i++)
+        {
+            _a[i] = _validPlacingPos? holoMat_Valid : holoMat_Error;
+        }
+        holoObject.GetComponent<Renderer>().materials = _a;
+    }
+    #endregion
 
-    #region Helper
+    #region Update Variables
     private void UpdateHitFromScreenRay()
     {
         Physics.Raycast(Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue()), out hit, 50, placeableLayer);      
