@@ -30,11 +30,11 @@
 
 ### Custom Models 
 
-- [ ] Buzz Ball
-- [ ] Beer cans 
-- [ ] Trash Cans 
-- [ ] Trash items ( such as bottles, boxes, etc.. ) 
-- [ ] Worm Cans
+- [X] Buzz Ball
+- [X] Beer cans 
+- [X] Trash Cans 
+- [X] Trash items ( such as bottles, boxes, etc.. ) 
+- [X] Worm Cans
  
 ## Guidelines 
 
