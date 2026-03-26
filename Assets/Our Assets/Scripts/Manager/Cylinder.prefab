@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8749644742185206335}
   - component: {fileID: 3867126087233965090}
   - component: {fileID: 7319493434040350536}
+  - component: {fileID: 2662943681501791852}
   m_Layer: 6
   m_Name: Cylinder
   m_TagString: Untagged
@@ -114,3 +115,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &2662943681501791852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2620473279043511288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cdbf653d0e7ebf4185ff902c2258bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaceableObjectData
+  <ObjID>k__BackingField: 0
+  <ObjectType>k__BackingField: 0
+  <AdditionelCellsToOccupy>k__BackingField: {x: 0, y: 2, z: 0}
+  <PlacesThisCanBePlaced>k__BackingField: 0100000002000000

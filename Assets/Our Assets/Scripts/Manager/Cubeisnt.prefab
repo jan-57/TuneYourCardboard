@@ -94,5 +94,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableObjectData
   <ObjID>k__BackingField: 0
-  <AdditionelCellsToOccupy>k__BackingField: {x: 0, y: 0, z: 0}
-  arrayToSet_PlacesThisCanBePlaced: 000000000100000002000000
+  <ObjectType>k__BackingField: 0
+  <AdditionelCellsToOccupy>k__BackingField: {x: 1, y: 0, z: 4}
+  <PlacesThisCanBePlaced>k__BackingField: 000000000100000002000000

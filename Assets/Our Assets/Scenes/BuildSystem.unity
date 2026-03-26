@@ -228,54 +228,11 @@ MonoBehaviour:
   second_AnchorPos: {fileID: 1051960983}
   _startCellID: {x: 1, y: 0, z: 1}
   _endCellID: {x: 5, y: 0, z: 5}
-  objects_List:
-  - cellID: {x: 4.5, y: 1, z: 1}
-    directionalOffset: {x: 0, y: 0, z: 0}
-    additionelCellsToOccupy: {x: 0, y: 0, z: 0}
-    objectRotation: {x: 0, y: 0, z: 1, w: -0.00000004371139}
-    objectID: 0
-    TMP_objectID_Replacemend: {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
-  - cellID: {x: 4.5, y: 2, z: 1}
-    directionalOffset: {x: 0, y: 0, z: 0}
-    additionelCellsToOccupy: {x: 0, y: 0, z: 0}
-    objectRotation: {x: 0, y: 0, z: 0, w: 1}
-    objectID: 0
-    TMP_objectID_Replacemend: {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
-  - cellID: {x: 5, y: 1.5, z: 1}
-    directionalOffset: {x: 0, y: 0, z: 0}
-    additionelCellsToOccupy: {x: 0, y: 0, z: 0}
-    objectRotation: {x: 0, y: 0, z: -0.70710677, w: 0.70710677}
-    objectID: 0
-    TMP_objectID_Replacemend: {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
-  - cellID: {x: 4, y: 1.5, z: 1}
-    directionalOffset: {x: 0, y: 0, z: 0}
-    additionelCellsToOccupy: {x: 0, y: 0, z: 0}
-    objectRotation: {x: 0, y: 0, z: 0.70710677, w: 0.70710677}
-    objectID: 0
-    TMP_objectID_Replacemend: {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
-  - cellID: {x: 4.5, y: 1.5, z: 1.5}
-    directionalOffset: {x: 0, y: 0, z: 0}
-    additionelCellsToOccupy: {x: 0, y: 0, z: 0}
-    objectRotation: {x: 0.49999997, y: 0.49999997, z: 0.49999997, w: 0.49999997}
-    objectID: 0
-    TMP_objectID_Replacemend: {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
-  - cellID: {x: 4.5, y: 1.5, z: 0.5}
-    directionalOffset: {x: 0, y: 0, z: 0}
-    additionelCellsToOccupy: {x: 0, y: 0, z: 0}
-    objectRotation: {x: 0.49999997, y: 0.49999997, z: -0.49999997, w: -0.49999997}
-    objectID: 0
-    TMP_objectID_Replacemend: {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
-  walls_List:
-  - cellID_Start: {x: 4, y: 0, z: 2}
-    cellID_End: {x: 8, y: 4, z: 6}
-    directionalOffset: {x: 0, y: 0, z: 0}
-    objectRotation: {x: 0, y: 0, z: 0, w: 0}
-    objectID: 0
-    TMP_objectID_Replacemend: {fileID: 3440993087945995145, guid: 475deb9491c36c14a9d09befbcc5f349, type: 3}
   showGizmos: 1
   onlyWhenSelected: 0
   gizmoColor_Cube: {r: 1, g: 0.92, b: 0.016, a: 0.35}
   gizmoColor_Dots: {r: 1, g: 0.5, b: 0.029, a: 0.35}
+  gizmoColor_Occupyed: {r: 0.027450979, g: 0.033743568, b: 1, a: 0.34901962}
 --- !u!1 &193000796
 GameObject:
   m_ObjectHideFlags: 0
@@ -1661,6 +1618,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2096313117}
   - component: {fileID: 2096313116}
+  - component: {fileID: 2096313118}
   m_Layer: 0
   m_Name: BuildManager
   m_TagString: Untagged
@@ -1680,17 +1638,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bd5af541cd2a0947aafac652004359b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildManager
+  <BuildModeActivated>k__BackingField: 1
   placeableLayer:
     serializedVersion: 2
     m_Bits: 128
-  gridToTest: {fileID: 85189305}
-  ObjectToTest: {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
-  <BuildModeActivated>k__BackingField: 1
   holoMat_Valid: {fileID: 2100000, guid: 3aa5805a8dc4fa14b9b654d5b5f79430, type: 2}
   holoMat_Error: {fileID: 2100000, guid: 303aad21b4fdc9c4db7530a366893c4a, type: 2}
+  gridToTest: {fileID: 85189305}
+  objectToPlace: {fileID: 0}
   showGizmos: 1
   onlyWhenSelected: 0
-  gizmoColor: {r: 1, g: 0.92, b: 0.016, a: 0.35}
+  gizmoColor_OccupyedCellDetected: {r: 1, g: 0, b: 0, a: 1}
+  gizmoColor_HitMarker: {r: 1, g: 0.92, b: 0.016, a: 0.35}
+  gizmoColor_SizeOfObj: {r: 1, g: 0.73719823, b: 0.015686274, a: 0.35}
   hitGizmoSize: 0.2
 --- !u!4 &2096313117
 Transform:
@@ -1707,6 +1667,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2096313118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096313115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0b9386b0dab90140b348a4ce947b1c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TBD_BuildManagerInventory
+  items:
+  - {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
+  - {fileID: 2620473279043511288, guid: d34d11768949bc5409b6e3b573f0afeb, type: 3}
+  currentSlot: 0
+  bm: {fileID: 2096313116}
 --- !u!1 &2133727417
 GameObject:
   m_ObjectHideFlags: 0

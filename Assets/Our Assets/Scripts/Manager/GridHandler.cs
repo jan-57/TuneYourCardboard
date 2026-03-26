@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 
 public class GridHandler : MonoBehaviour
 {
     #region Variables
+    //Grid Settings
     [field:SerializeField] public float CellSize { get; private set; } = 0.5f;
     [SerializeField] private Transform first_AnchorPos, second_AnchorPos;
-    [SerializeField] private Vector3 _startCellID, _endCellID;
 
-    [SerializeField] private List<BuildList_Objects> objects_List = new List<BuildList_Objects>();
-    [SerializeField] private List<BuildList_Walls> walls_List = new List<BuildList_Walls>();
+    public List<Vector3> OccupyedCell_List { get; private set; } = new List<Vector3>();
+    private List<BuildList_Object> object_List = new List<BuildList_Object>();
+    private List<BuildList_Wall> wall_List = new List<BuildList_Wall>();
+    
+    //Wall setting
+    private float wallThickness = 0.01f;
 
+    //private Grid size variables
     private int xCount, yCount, zCount;
     private Vector3 minGrid, maxGrid;
-    private float wallThickness = 0.01f;
-#endregion
+    #endregion
 
     private void Awake()
     {
@@ -25,24 +28,39 @@ public class GridHandler : MonoBehaviour
     }
 
     #region Spawn/ Add/ Create
+    private void OccupyAdditionalCells(BuildList_Object _objInfo)
+    {
+        if (_objInfo.additionelCellsToOccupy == new Vector3(-1, -1, -1)) return;
+
+        for (int x = 0; x <= _objInfo.additionelCellsToOccupy.x; x++)
+        {
+            for (int y = 0; y <= _objInfo.additionelCellsToOccupy.y; y++)
+            {
+                for (int z = 0; z <= _objInfo.additionelCellsToOccupy.z; z++)
+                {
+                    if(!OccupyedCell_List.Contains(GetCellID_From_WorldPos(first_AnchorPos.position + _objInfo.cellID + _objInfo.objectRotation * (new Vector3(x, y, z) * CellSize)) ))
+                            OccupyedCell_List.Add(GetCellID_From_WorldPos(first_AnchorPos.position+_objInfo.cellID + _objInfo.objectRotation * (new Vector3(x, y, z)*CellSize) ));
+                }
+            }
+        }                            
+    }
+
     #region Add 
     //Add new object/wall
-    public void AddObject(GameObject _objREPLACEWITHID, Vector3 _cellID, Quaternion _rotation, Vector3 _directionToOffsetToo, int _objID = 0) //remove = 0
+    public void AddObject(GameObject _objREPLACEWITHID, Vector3 _cellID, Quaternion _rotation, Vector3 _directionToOffsetTo, int _objID = 0) //ToDo: remove = 0 when _objREPLACEWITHID gets replaced with id manager
     {
-        BuildList_Objects bl = new BuildList_Objects();
-        bl.cellID = _cellID;
-        bl.directionalOffset = _directionToOffsetToo;
-        bl.TMP_objectID_Replacemend = _objREPLACEWITHID;        
-        Debug.Log("bl" + bl);
-        Debug.Log("repl" + bl.TMP_objectID_Replacemend);
-        Debug.Log("Get" + bl.TMP_objectID_Replacemend.GetComponent<PlaceableObjectData>());
-        Debug.Log("Cells" + bl.TMP_objectID_Replacemend.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy);
-        bl.additionelCellsToOccupy = bl.TMP_objectID_Replacemend.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy;
-        Debug.Log(bl.cellID + "  " + _cellID);
-        bl.objectRotation = _rotation;
-        bl.objectID = _objID;
-        objects_List.Add(bl);        
-        CreateObject(bl);
+        BuildList_Object _bl = new BuildList_Object();
+        _bl.cellID = _cellID;
+        _bl.directionalOffset = _directionToOffsetTo;
+        
+        _bl.TMP_objectID_Replacemend = _objREPLACEWITHID;             
+        _bl.objectID = _objID;
+
+        _bl.additionelCellsToOccupy = _bl.TMP_objectID_Replacemend.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy;        
+        _bl.objectRotation = _rotation;
+        
+        object_List.Add(_bl);        
+        CreateObject(_bl);
     }
     public void AddBoxOfWalls(GameObject _wallREPLACEWITHID, Vector3 _cellId_Start, Vector3 _cellId_End)
     {
@@ -65,12 +83,12 @@ public class GridHandler : MonoBehaviour
     //Initiate Prefab
     private void SpawnPreset()
     {
-        foreach (BuildList_Walls _wall in walls_List)
+        foreach (BuildList_Wall _wall in wall_List)
         {
             CreateBoxOfWalls(_wall.cellID_Start, _wall.cellID_End, _wall.TMP_objectID_Replacemend);                  
         }
-
-        foreach (BuildList_Objects _obj in objects_List)
+        
+        foreach (BuildList_Object _obj in object_List)
         {
             CreateObject(_obj);         
         }
@@ -79,12 +97,14 @@ public class GridHandler : MonoBehaviour
 
     #region Create
     //Instantiate object/walls
-    private void CreateObject(BuildList_Objects _objInfo)
+    private void CreateObject(BuildList_Object _objInfo)
     {
         GameObject tmp = Instantiate(_objInfo.TMP_objectID_Replacemend, first_AnchorPos);
         tmp.transform.localPosition = _objInfo.cellID + _objInfo.directionalOffset * (CellSize/2);
         tmp.transform.localRotation = _objInfo.objectRotation;
+        OccupyAdditionalCells(_objInfo);
     }
+
     private void CreateBoxOfWalls(Vector3 _cellA, Vector3 _cellB, GameObject _wallPrefab)
     {
         Vector3 _min = Vector3.Min(_cellA, _cellB);
@@ -95,6 +115,7 @@ public class GridHandler : MonoBehaviour
         Bounds _bounds = new Bounds();
 
         _bounds.SetMinMax(_min * CellSize, _max * CellSize + Vector3.one*CellSize);
+
         Debug.Log(_bounds.center.x+" "+ _bounds.center.y+ " "+ _bounds.center.z);
 
         // Floor
@@ -123,9 +144,28 @@ public class GridHandler : MonoBehaviour
         wall.transform.localScale = _scale;
     }
     #endregion
+
     #endregion
 
     #region Helper Methods
+    private void UpdateGridData()
+    {
+        minGrid = Vector3.Min(first_AnchorPos.position, second_AnchorPos.position);
+        maxGrid = Vector3.Max(first_AnchorPos.position, second_AnchorPos.position);
+
+        xCount = Mathf.FloorToInt((maxGrid.x - minGrid.x) / CellSize);
+        yCount = Mathf.FloorToInt((maxGrid.y - minGrid.y) / CellSize);
+        zCount = Mathf.FloorToInt((maxGrid.z - minGrid.z) / CellSize);
+    }
+
+
+    #region Getter
+    public Transform GetFirst_Anchor()
+    {
+        return first_AnchorPos;
+    }
+
+    //Data Convertion
     public Vector3 GetCellWorldPos_FromID(Vector3 _cellID)
     {
         Vector3 center = new Vector3(minGrid.x + _cellID.x * CellSize + CellSize * 0.5f,
@@ -144,32 +184,25 @@ public class GridHandler : MonoBehaviour
                            Mathf.Floor((_posToCheck.y - minGrid.y) / CellSize) * CellSize + minGrid.y + CellSize * 0.5f,
                            Mathf.Floor((_posToCheck.z - minGrid.z) / CellSize) * CellSize + minGrid.z + CellSize * 0.5f);        
     }
-    public Vector3 GetCellID_FromCellWorldPos(Vector3 _cellWorldPosToCheck)
+    public Vector3 GetCellID_From_Cell_WorldPos(Vector3 _cellWorldPosToCheck)
     {
         return first_AnchorPos.InverseTransformPoint(_cellWorldPosToCheck);
     }
-
-    private void UpdateGridData()
+    public Vector3 GetCellID_From_WorldPos(Vector3 _worldPosToCheck)
     {
-        minGrid = Vector3.Min(first_AnchorPos.position, second_AnchorPos.position);
-        maxGrid = Vector3.Max(first_AnchorPos.position, second_AnchorPos.position);
+        return first_AnchorPos.InverseTransformPoint(GetCellWorldPos_FromWorldPos(_worldPosToCheck));
+    }  
+    #endregion
 
-        xCount = Mathf.FloorToInt((maxGrid.x - minGrid.x) / CellSize);
-        yCount = Mathf.FloorToInt((maxGrid.y - minGrid.y) / CellSize);
-        zCount = Mathf.FloorToInt((maxGrid.z - minGrid.z) / CellSize);
-    }
-    public Transform GetFirst_Anchor()
-    {
-        return first_AnchorPos;
-    }
     #endregion
 
     #region Gizmo
     [Header("Visualization")]
-    [SerializeField] bool showGizmos = true;
-    [SerializeField] bool onlyWhenSelected = false;
-    [SerializeField] Color gizmoColor_Cube = new Color(1f, 0.92f, 0.016f, 0.35f);
-    [SerializeField] Color gizmoColor_Dots = new Color(1f, 0.50f, 0.029f, 0.35f);
+    [SerializeField] private bool showGizmos = true;
+    [SerializeField] private bool onlyWhenSelected = false;
+    [SerializeField] private Color gizmoColor_Cube = new Color(1f, 0.92f, 0.016f, 0.35f);
+    [SerializeField] private Color gizmoColor_Dots = new Color(1f, 0.50f, 0.029f, 0.35f);
+    [SerializeField] private Color gizmoColor_Occupyed = new Color(1f, 0.80f, 0.029f, 0.35f);
 
     private void OnDrawGizmos()
     {
@@ -187,6 +220,7 @@ public class GridHandler : MonoBehaviour
     {
         DrawWiredBoxGizmo();
         DrawDotsGizmo();
+        DrawOccupyedGizmo();
     }
 
     private void DrawWiredBoxGizmo()
@@ -203,6 +237,15 @@ public class GridHandler : MonoBehaviour
         Gizmos.DrawWireCube(center, size);
     }
   
+    private void DrawOccupyedGizmo()
+    {
+        Gizmos.color = gizmoColor_Occupyed;
+        foreach (Vector3 item in OccupyedCell_List)
+        {
+            Gizmos.DrawCube(first_AnchorPos.position + item, Vector3.one * (CellSize/2));
+        }        
+    }
+
     private void DrawDotsGizmo()
     {
         if (first_AnchorPos == null || second_AnchorPos == null || CellSize <= 0f)
@@ -219,7 +262,7 @@ public class GridHandler : MonoBehaviour
                 {
                     Vector3 center = new Vector3(minGrid.x + x * CellSize + CellSize * 0.5f,
                                                   minGrid.y + y * CellSize + CellSize * 0.5f,
-                                                  minGrid.z + z * CellSize + CellSize * 0.5f);
+                                                  minGrid.z + z * CellSize + CellSize * 0.5f);                                                       
 
                     Gizmos.DrawSphere(center, CellSize * 0.1f);
                 }
@@ -231,7 +274,7 @@ public class GridHandler : MonoBehaviour
 
 #region structs
 [Serializable]
-public struct BuildList_Objects
+public struct BuildList_Object
 {
     public Vector3 cellID;
     public Vector3 directionalOffset;
@@ -241,12 +284,19 @@ public struct BuildList_Objects
     public GameObject TMP_objectID_Replacemend;
 }
 [Serializable]
-public struct BuildList_Walls
+public struct BuildList_Wall
 {
     public Vector3 cellID_Start, cellID_End;
     public Vector3 directionalOffset;
     public Quaternion objectRotation;
     public int objectID;
     public GameObject TMP_objectID_Replacemend;
+}
+
+[Serializable]
+public struct CardboardPreset
+{
+    public BuildList_Object[] object_List;
+    public BuildList_Wall[] wall_List;
 }
 #endregion
