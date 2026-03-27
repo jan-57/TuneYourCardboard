@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -108,6 +109,8 @@ public class BuildManager : MonoBehaviour
             case ObjectType.SingleWall:
                 break;
             case ObjectType.CubeWall:
+                Debug.Log(cellPosWorldSpace+"  "+ grid.GetCellID_From_WorldPos(cellPosWorldSpace));
+                grid.AddBoxOfWalls(objectToPlace, grid.GetCellID_From_WorldPos(cellPosWorldSpace), grid.GetCellID_From_WorldPos( cellPosWorldSpace + holoObject.transform.rotation * (objectToPlace.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy )) );
                 break;
             default:
                 grid.AddObject(objectToPlace, grid.GetCellID_From_WorldPos(cellPosWorldSpace), holoObject.transform.rotation, -hit.normal); //a Placed thing is most likely to be an object
@@ -124,8 +127,14 @@ public class BuildManager : MonoBehaviour
         if (objectToPlace == null) return false;
         if (holoObject == null) return false;
 
+        PlaceableObjectData _od = objectToPlace.GetComponent<PlaceableObjectData>();
+
+        //Object Place Restriction
+        if (!_od.PlacesThisCanBePlaced.Contains(PlacesObjectCanBePlace.Floor)        &&  hit.normal.y > 0)                                                  return false; 
+        else if (!_od.PlacesThisCanBePlaced.Contains(PlacesObjectCanBePlace.Walls)   && (Mathf.Abs(hit.normal.x) > 0.2f || Mathf.Abs(hit.normal.z) > 0.2f)) return false;
+        else if (!_od.PlacesThisCanBePlaced.Contains(PlacesObjectCanBePlace.Ceiling) &&  hit.normal.y < 0)                                                  return false; 
+
         //Collision Check
-        PlaceableObjectData _od = holoObject.GetComponent<PlaceableObjectData>();
         debug_CollisionPoint = Vector3.zero;
         for (int x = 0; x <= _od.AdditionelCellsToOccupy.x; x++)
         {
