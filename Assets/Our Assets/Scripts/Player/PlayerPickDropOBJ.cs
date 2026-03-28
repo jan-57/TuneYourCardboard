@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerPickDropOBJ : MonoBehaviour
 {
     [SerializeField] private Transform playerCameraTransform;
+    [SerializeField] private Transform grabPointTrasnform; 
     
     public void OnInteract(InputAction.CallbackContext context)
     {
@@ -15,6 +16,7 @@ public class PlayerPickDropOBJ : MonoBehaviour
             {
                 if (hit.transform.TryGetComponent(out PickUpOBJ pickUpObj))
                 {
+                    pickUpObj.Grab(grabPointTrasnform);
                     Debug.Log(hit.transform.name);
                 }
             }
