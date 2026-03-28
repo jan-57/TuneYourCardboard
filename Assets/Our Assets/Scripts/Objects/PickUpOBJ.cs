@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PickUpOBJ : MonoBehaviour
@@ -25,6 +26,13 @@ public class PickUpOBJ : MonoBehaviour
         else
         {
             rb.useGravity = true;
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Trash"))
+        {
+            Destroy(gameObject);
         }
     }
 }
