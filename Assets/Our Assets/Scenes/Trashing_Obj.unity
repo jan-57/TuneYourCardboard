@@ -357,6 +357,7 @@ GameObject:
   - component: {fileID: 577096753}
   - component: {fileID: 577096752}
   - component: {fileID: 577096756}
+  - component: {fileID: 577096757}
   m_Layer: 0
   m_Name: Tmp_PlayerHolder
   m_TagString: Untagged
@@ -469,6 +470,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerPickDropOBJ
   playerCameraTransform: {fileID: 1457892017}
+--- !u!114 &577096757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577096751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: cf88ce02a01582a5daaf8cf498651169, type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 577096756}
+        m_TargetAssemblyTypeName: PlayerPickDropOBJ, Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 98a8be39-8337-4123-af6e-645272b4ebf2
+    m_ActionName: 'Interact/onInteract[/Keyboard/e]'
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Interact
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &593123143
 GameObject:
   m_ObjectHideFlags: 0

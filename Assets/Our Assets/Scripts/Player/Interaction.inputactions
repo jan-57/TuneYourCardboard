@@ -1,0 +1,35 @@
+{
+    "version": 1,
+    "name": "Interaction",
+    "maps": [
+        {
+            "name": "Interact",
+            "id": "8a5ea1da-85e2-4e51-bbbe-9b96e272588a",
+            "actions": [
+                {
+                    "name": "onInteract",
+                    "type": "Button",
+                    "id": "98a8be39-8337-4123-af6e-645272b4ebf2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "cf678a7f-1885-4566-bc29-20015cd397d5",
+                    "path": "<Keyboard>/#(E)",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "",
+                    "action": "onInteract",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

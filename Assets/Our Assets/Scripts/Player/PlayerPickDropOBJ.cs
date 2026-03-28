@@ -1,11 +1,13 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerPickDropOBJ : MonoBehaviour
 {
     [SerializeField] private Transform playerCameraTransform;
-    void Update()
+    
+    public void OnInteract(InputAction.CallbackContext context)
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (context.started)
         {
             float hitDistance = 2.5f;
             if (Physics.Raycast(playerCameraTransform.position, playerCameraTransform.forward, out RaycastHit hit,
@@ -13,7 +15,7 @@ public class PlayerPickDropOBJ : MonoBehaviour
             {
                 if (hit.transform.TryGetComponent(out PickUpOBJ pickUpObj))
                 {
-                    Debug.Log("Can grab object");
+                    Debug.Log(hit.transform.name);
                 }
             }
         }
