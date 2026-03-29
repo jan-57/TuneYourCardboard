@@ -38,11 +38,17 @@ public class GridHandler : MonoBehaviour
             {
                 for (int z = 0; z <= _objInfo.additionelCellsToOccupy.z; z++)
                 {
-                    if(!OccupyedCell_List.Contains(GetCellID_From_WorldPos(first_AnchorPos.position + _objInfo.cellID + _objInfo.objectRotation * (new Vector3(x, y, z) * CellSize)) ))
-                            OccupyedCell_List.Add(GetCellID_From_WorldPos(first_AnchorPos.position+_objInfo.cellID + _objInfo.objectRotation * (new Vector3(x, y, z)*CellSize) ));
+                    OccupyedCell_List.Add(Vector3Int.RoundToInt(GetCellID_From_CellPos(
+                                            first_AnchorPos.position + (_objInfo.cellID * CellSize) 
+                                            - Vector3.one*(CellSize/2) 
+                                            + _objInfo.objectRotation * ( new Vector3(x, y, z) * CellSize)) ));
                 }
             }
-        }                            
+        }
+        foreach (var item in OccupyedCell_List)
+        {
+            Debug.Log("Occu: " + item);
+        }
     }
 
     #region Add 
@@ -51,6 +57,7 @@ public class GridHandler : MonoBehaviour
     {
         BuildList_Object _bl = new BuildList_Object();
         _bl.cellID = _cellID;
+        Debug.Log("fresh ID: " + _cellID);
         _bl.directionalOffset = _directionToOffsetTo;
         
         _bl.TMP_objectID_Replacemend = _objREPLACEWITHID;             
@@ -100,7 +107,7 @@ public class GridHandler : MonoBehaviour
     private void CreateObject(BuildList_Object _objInfo)
     {
         GameObject tmp = Instantiate(_objInfo.TMP_objectID_Replacemend, first_AnchorPos);
-        tmp.transform.localPosition = _objInfo.cellID + _objInfo.directionalOffset * (CellSize/2);
+        tmp.transform.localPosition = (_objInfo.cellID - Vector3.one*CellSize) * CellSize + _objInfo.directionalOffset * (CellSize/2);
         tmp.transform.localRotation = _objInfo.objectRotation;
         OccupyAdditionalCells(_objInfo);
     }
@@ -110,6 +117,7 @@ public class GridHandler : MonoBehaviour
         Vector3 _min = Vector3.Min(_cellA, _cellB);
         Vector3 _max = Vector3.Max(_cellA, _cellB);
 
+        Debug.Log($"CellInput A: {_cellA}, B: {_cellB}");
         Debug.Log($"Min: {_min.x} {_min.y} {_min.z}, Max: {_max.x} {_max.y} {_max.z}");
 
         Bounds _bounds = new Bounds();
@@ -168,11 +176,7 @@ public class GridHandler : MonoBehaviour
     //Data Convertion
     public Vector3 GetCellWorldPos_FromID(Vector3 _cellID)
     {
-        Vector3 center = new Vector3(minGrid.x + _cellID.x * CellSize + CellSize * 0.5f,
-                                      minGrid.y + _cellID.y * CellSize + CellSize * 0.5f,
-                                      minGrid.z + _cellID.z * CellSize + CellSize * 0.5f);
-        Debug.Log(center);
-        return center;              
+        return first_AnchorPos.position + _cellID * CellSize;              
     }
     public Vector3 GetCellWorldPos_FromWorldPos(Vector3 _posToCheck)
     {
@@ -184,13 +188,13 @@ public class GridHandler : MonoBehaviour
                            Mathf.Floor((_posToCheck.y - minGrid.y) / CellSize) * CellSize + minGrid.y + CellSize * 0.5f,
                            Mathf.Floor((_posToCheck.z - minGrid.z) / CellSize) * CellSize + minGrid.z + CellSize * 0.5f);        
     }
-    public Vector3 GetCellID_From_Cell_WorldPos(Vector3 _cellWorldPosToCheck)
+    public Vector3 GetCellID_From_CellPos(Vector3 _cellWorldPosToCheck)
     {
-        return first_AnchorPos.InverseTransformPoint(_cellWorldPosToCheck);
+        return (first_AnchorPos.InverseTransformPoint(_cellWorldPosToCheck) / CellSize + Vector3.one * CellSize);
     }
     public Vector3 GetCellID_From_WorldPos(Vector3 _worldPosToCheck)
     {
-        return first_AnchorPos.InverseTransformPoint(GetCellWorldPos_FromWorldPos(_worldPosToCheck));
+        return GetCellID_From_CellPos(GetCellWorldPos_FromWorldPos(_worldPosToCheck) );
     }  
     #endregion
 
@@ -242,7 +246,7 @@ public class GridHandler : MonoBehaviour
         Gizmos.color = gizmoColor_Occupyed;
         foreach (Vector3 item in OccupyedCell_List)
         {
-            Gizmos.DrawCube(first_AnchorPos.position + item, Vector3.one * (CellSize/2));
+            Gizmos.DrawCube(first_AnchorPos.position + item * CellSize -Vector3.one * (CellSize/2), Vector3.one * (CellSize/2));
         }        
     }
 

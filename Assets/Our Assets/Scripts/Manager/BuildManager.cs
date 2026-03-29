@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -51,6 +52,7 @@ public class BuildManager : MonoBehaviour
 
         inputSystem = new InputSystem_Player();
     }
+
     private void OnEnable()
     {
         inputSystem.Enable();
@@ -104,16 +106,19 @@ public class BuildManager : MonoBehaviour
         switch (objectToPlace.GetComponent<PlaceableObjectData>().ObjectType) //ToDo: See if we can use a look up table instead
         {
             case ObjectType.Object:
-                grid.AddObject(objectToPlace, grid.GetCellID_From_WorldPos(cellPosWorldSpace), holoObject.transform.rotation, -hit.normal);
+                Debug.Log($"cellPosWorldSpace: {cellPosWorldSpace}");
+                Debug.Log($"CellIdFromCellpos: {grid.GetCellID_From_CellPos(cellPosWorldSpace)}"); 
+                Debug.Log($"--CellIdFromWorldpos: {grid.GetCellID_From_WorldPos(cellPosWorldSpace)}");
+                grid.AddObject(objectToPlace, grid.GetCellID_From_CellPos(cellPosWorldSpace), holoObject.transform.rotation, -hit.normal);
                 break;
             case ObjectType.SingleWall:
                 break;
             case ObjectType.CubeWall:
                 Debug.Log(cellPosWorldSpace+"  "+ grid.GetCellID_From_WorldPos(cellPosWorldSpace));
-                grid.AddBoxOfWalls(objectToPlace, grid.GetCellID_From_WorldPos(cellPosWorldSpace), grid.GetCellID_From_WorldPos( cellPosWorldSpace + holoObject.transform.rotation * (objectToPlace.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy )) );
+                grid.AddBoxOfWalls(objectToPlace, grid.GetCellID_From_CellPos(cellPosWorldSpace), grid.GetCellID_From_WorldPos( cellPosWorldSpace + holoObject.transform.rotation * (objectToPlace.GetComponent<PlaceableObjectData>().AdditionelCellsToOccupy )) );
                 break;
             default:
-                grid.AddObject(objectToPlace, grid.GetCellID_From_WorldPos(cellPosWorldSpace), holoObject.transform.rotation, -hit.normal); //a Placed thing is most likely to be an object
+                grid.AddObject(objectToPlace, grid.GetCellID_From_CellPos(cellPosWorldSpace), holoObject.transform.rotation, -hit.normal); //a Placed thing is most likely to be an object
                 break;
         }
     }
@@ -142,10 +147,14 @@ public class BuildManager : MonoBehaviour
             {
                 for (int z = 0; z <= _od.AdditionelCellsToOccupy.z; z++)
                 {
-                    Vector3 _worldPosToCheck = cellPosWorldSpace + holoObject.transform.rotation * (new Vector3(x, y, z) * grid.CellSize);
-                    if (grid.OccupyedCell_List.Contains(grid.GetCellID_From_WorldPos(_worldPosToCheck)))
+                    Vector3 _posToCheck =  grid.GetFirst_Anchor().position + grid.GetCellID_From_CellPos(cellPosWorldSpace) * grid.CellSize
+                                            - Vector3.one * (grid.CellSize/2 ) + 
+                                            (holoObject.transform.rotation * (new Vector3(x, y, z) * grid.CellSize));
+
+                                                             
+                    if (grid.OccupyedCell_List.Contains(Vector3Int.RoundToInt(grid.GetCellID_From_CellPos(_posToCheck))))
                     {
-                        debug_CollisionPoint = grid.GetCellID_From_WorldPos(_worldPosToCheck);
+                        debug_CollisionPoint = grid.GetCellID_From_WorldPos(_posToCheck);
                         return false;
                     }
                 }

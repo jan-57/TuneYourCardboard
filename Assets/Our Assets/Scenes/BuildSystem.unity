@@ -226,8 +226,6 @@ MonoBehaviour:
   <CellSize>k__BackingField: 0.5
   first_AnchorPos: {fileID: 514363273}
   second_AnchorPos: {fileID: 1051960983}
-  _startCellID: {x: 1, y: 0, z: 1}
-  _endCellID: {x: 5, y: 0, z: 5}
   showGizmos: 1
   onlyWhenSelected: 0
   gizmoColor_Cube: {r: 1, g: 0.92, b: 0.016, a: 0.35}
@@ -1681,6 +1679,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TBD_BuildManagerInventory
   items:
   - {fileID: 7807708795591901883, guid: 189897c8a6738e54bbf33e8b55cf95ad, type: 3}
+  - {fileID: 3440993087945995145, guid: 475deb9491c36c14a9d09befbcc5f349, type: 3}
   - {fileID: 2620473279043511288, guid: d34d11768949bc5409b6e3b573f0afeb, type: 3}
   currentSlot: 0
   bm: {fileID: 2096313116}
