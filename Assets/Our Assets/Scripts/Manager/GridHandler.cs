@@ -44,11 +44,7 @@ public class GridHandler : MonoBehaviour
                                             + _objInfo.objectRotation * ( new Vector3(x, y, z) * CellSize)) ));
                 }
             }
-        }
-        foreach (var item in OccupyedCell_List)
-        {
-            Debug.Log("Occu: " + item);
-        }
+        }       
     }
 
     #region Add 
@@ -57,7 +53,6 @@ public class GridHandler : MonoBehaviour
     {
         BuildList_Object _bl = new BuildList_Object();
         _bl.cellID = _cellID;
-        Debug.Log("fresh ID: " + _cellID);
         _bl.directionalOffset = _directionToOffsetTo;
         
         _bl.TMP_objectID_Replacemend = _objREPLACEWITHID;             
