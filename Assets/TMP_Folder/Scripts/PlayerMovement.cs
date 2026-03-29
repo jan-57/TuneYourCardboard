@@ -88,7 +88,6 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 CalculateFriction(Vector3 currentVelocity)
     {
-        Debug.Log("Calculate Friction");
         float speed = currentVelocity.magnitude;
 
         if (!onGround || inputSystem.Player.Jump.IsPressed() || speed == 0f)
@@ -100,8 +99,6 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 CalculateMovement(Vector2 input, Vector3 velocity)
     {
-        Debug.Log("Calculate Movement");
-
         //Different acceleration values for ground and air
         if (onGround) 
         { 
